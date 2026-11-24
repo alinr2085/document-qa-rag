@@ -1,0 +1,2617 @@
+/* ==========================================================================
+   DocQA — تم مدرن پنل مدیریت
+   --------------------------------------------------------------------------
+   این فایل فقط «ظاهر» را تغییر می‌دهد. هیچ رفتار، مسیر، نام فیلد یا
+   دکمه‌ای دست نمی‌خورد؛ همه‌ی قوانین روی کلاس‌های استاندارد Django Admin
+   نوشته شده‌اند تا افزونه‌ها و منطق فعلی پروژه سالم بمانند.
+
+   ساختار:
+     1. توکن‌های طراحی (روشن / تاریک)
+     2. پایه و تایپوگرافی
+     3. هدر و برندینگ
+     4. مسیر راهنما (breadcrumbs)
+     5. نوار کناری (sidebar)
+     6. کارت‌ها و عنوان‌ها
+     7. داشبورد
+     8. جدول‌ها
+     9. فرم‌ها
+    10. دکمه‌ها و ابزارهای شیء
+    11. پیام‌ها و خطاها
+    12. جست‌وجو، فیلتر و صفحه‌بندی
+    13. صفحه‌ی ورود
+    14. واکنش‌گرایی
+   ========================================================================== */
+
+/* ==========================================================================
+   1. توکن‌های طراحی
+   ========================================================================== */
+
+:root,
+html[data-theme="light"] {
+  /* رنگ‌مایه */
+  --t-primary: #6366f1;
+  --t-primary-2: #8b5cf6;
+  --t-primary-strong: #4f46e5;
+  --t-primary-soft: rgba(99, 102, 241, 0.1);
+  --t-primary-ring: rgba(99, 102, 241, 0.18);
+
+  --t-bg: #f4f5fb;
+  --t-surface: #ffffff;
+  --t-surface-2: #f8f9fd;
+  --t-border: #e6e8f0;
+  --t-border-strong: #d3d8e6;
+
+  --t-text: #101828;
+  --t-text-soft: #475467;
+  --t-muted: #8a93a6;
+
+  --t-shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --t-shadow-sm:
+    0 1px 3px rgba(16, 24, 40, 0.07), 0 1px 2px rgba(16, 24, 40, 0.04);
+  --t-shadow-md:
+    0 10px 26px -8px rgba(79, 70, 229, 0.2),
+    0 4px 10px -4px rgba(16, 24, 40, 0.06);
+  --t-shadow-lg: 0 26px 50px -14px rgba(16, 24, 40, 0.22);
+
+  --t-radius-lg: 18px;
+  --t-radius: 14px;
+  --t-radius-sm: 10px;
+
+  /* آیکون‌ها (به‌صورت mask، رنگشان از currentColor می‌آید) */
+  --t-icon-docs: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z'/%3E%3Cpath d='M14 2v5h6'/%3E%3Cpath d='M16 13H8'/%3E%3Cpath d='M16 17H8'/%3E%3Cpath d='M10 9H8'/%3E%3C/svg%3E");
+  --t-icon-users: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='M22 21v-2a4 4 0 0 0-3-3.87'/%3E%3Cpath d='M16 3.13a4 4 0 0 1 0 7.75'/%3E%3C/svg%3E");
+  --t-icon-db: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse cx='12' cy='5' rx='9' ry='3'/%3E%3Cpath d='M3 5v14a9 3 0 0 0 18 0V5'/%3E%3Cpath d='M3 12a9 3 0 0 0 18 0'/%3E%3C/svg%3E");
+  --t-icon-cog: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z'/%3E%3C/svg%3E");
+  --t-icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+
+  /* متغیرهای بومی Django — تا رنگ کل پنل با تم هماهنگ شود */
+  --primary: #6366f1;
+  --secondary: #4f46e5;
+  --accent: #8b5cf6;
+  --primary-fg: #ffffff;
+  --body-fg: #101828;
+  --body-bg: #ffffff;
+  --body-quiet-color: #667085;
+  --body-medium-color: #475467;
+  --body-loud-color: #101828;
+  --header-color: #ffffff;
+  --header-branding-color: #6366f1;
+  --header-bg: #ffffff;
+  --header-link-color: #344054;
+  --breadcrumbs-fg: #667085;
+  --breadcrumbs-link-fg: #4f46e5;
+  --breadcrumbs-bg: #ffffff;
+  --link-fg: #4f46e5;
+  --link-hover-color: #4338ca;
+  --link-selected-fg: #4f46e5;
+  --hairline-color: #e6e8f0;
+  --border-color: #d3d8e6;
+  --error-fg: #d92d20;
+  --darkened-bg: #f8f9fd;
+  --selected-bg: #eef2ff;
+  --selected-row: #eef2ff;
+  --button-fg: #ffffff;
+  --button-bg: #6366f1;
+  --button-hover-bg: #4f46e5;
+  --default-button-bg: #4f46e5;
+  --default-button-hover-bg: #4338ca;
+  --close-button-bg: #98a2b3;
+  --close-button-hover-bg: #667085;
+  --delete-button-bg: #d92d20;
+  --delete-button-hover-bg: #b42318;
+  --object-tools-fg: #ffffff;
+  --object-tools-bg: #6366f1;
+  --object-tools-hover-bg: #4f46e5;
+  --message-debug-bg: #f2f4f7;
+  --message-info-bg: #eef4ff;
+  --message-success-bg: #ecfdf3;
+  --message-warning-bg: #fffaeb;
+  --message-error-bg: #fef3f2;
+}
+
+/* حالت تاریک — انتخاب صریح */
+html[data-theme="dark"] {
+  --t-primary: #818cf8;
+  --t-primary-2: #a78bfa;
+  --t-primary-strong: #6366f1;
+  --t-primary-soft: rgba(129, 140, 248, 0.14);
+  --t-primary-ring: rgba(129, 140, 248, 0.25);
+
+  --t-bg: #0d0f16;
+  --t-surface: #151824;
+  --t-surface-2: #1b1f2d;
+  --t-border: #262b3a;
+  --t-border-strong: #343b4d;
+
+  --t-text: #e8eaf2;
+  --t-text-soft: #aeb5c7;
+  --t-muted: #7b8497;
+
+  --t-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --t-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45);
+  --t-shadow-md: 0 12px 28px -10px rgba(0, 0, 0, 0.65);
+  --t-shadow-lg: 0 28px 55px -16px rgba(0, 0, 0, 0.75);
+
+  --primary: #818cf8;
+  --secondary: #6366f1;
+  --accent: #a78bfa;
+  --primary-fg: #0d0f16;
+  --body-fg: #e8eaf2;
+  --body-bg: #151824;
+  --body-quiet-color: #98a0b3;
+  --body-medium-color: #c3c9d6;
+  --body-loud-color: #ffffff;
+  --header-color: #e8eaf2;
+  --header-branding-color: #818cf8;
+  --header-bg: #151824;
+  --header-link-color: #c3c9d6;
+  --breadcrumbs-fg: #98a0b3;
+  --breadcrumbs-link-fg: #a5b4fc;
+  --breadcrumbs-bg: #151824;
+  --link-fg: #a5b4fc;
+  --link-hover-color: #c7d2fe;
+  --link-selected-fg: #a5b4fc;
+  --hairline-color: #262b3a;
+  --border-color: #343b4d;
+  --error-fg: #f97066;
+  --darkened-bg: #1b1f2d;
+  --selected-bg: #1e2440;
+  --selected-row: #232a4d;
+  --button-fg: #ffffff;
+  --button-bg: #6366f1;
+  --button-hover-bg: #4f46e5;
+  --default-button-bg: #4f46e5;
+  --default-button-hover-bg: #4338ca;
+  --close-button-bg: #343b4d;
+  --close-button-hover-bg: #4b5468;
+  --delete-button-bg: #d92d20;
+  --delete-button-hover-bg: #b42318;
+  --object-tools-fg: #ffffff;
+  --object-tools-bg: #6366f1;
+  --object-tools-hover-bg: #4f46e5;
+  --message-debug-bg: #1f2431;
+  --message-info-bg: #1c2740;
+  --message-success-bg: #14301f;
+  --message-warning-bg: #33280f;
+  --message-error-bg: #3a1a1a;
+}
+
+/* حالت تاریک — حالت «auto» وقتی سیستم‌عامل تیره است */
+@media (prefers-color-scheme: dark) {
+  html[data-theme="auto"] {
+    --t-primary: #818cf8;
+    --t-primary-2: #a78bfa;
+    --t-primary-strong: #6366f1;
+    --t-primary-soft: rgba(129, 140, 248, 0.14);
+    --t-primary-ring: rgba(129, 140, 248, 0.25);
+
+    --t-bg: #0d0f16;
+    --t-surface: #151824;
+    --t-surface-2: #1b1f2d;
+    --t-border: #262b3a;
+    --t-border-strong: #343b4d;
+
+    --t-text: #e8eaf2;
+    --t-text-soft: #aeb5c7;
+    --t-muted: #7b8497;
+
+    --t-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --t-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45);
+    --t-shadow-md: 0 12px 28px -10px rgba(0, 0, 0, 0.65);
+    --t-shadow-lg: 0 28px 55px -16px rgba(0, 0, 0, 0.75);
+
+    --primary: #818cf8;
+    --secondary: #6366f1;
+    --accent: #a78bfa;
+    --primary-fg: #0d0f16;
+    --body-fg: #e8eaf2;
+    --body-bg: #151824;
+    --body-quiet-color: #98a0b3;
+    --body-medium-color: #c3c9d6;
+    --body-loud-color: #ffffff;
+    --header-color: #e8eaf2;
+    --header-branding-color: #818cf8;
+    --header-bg: #151824;
+    --header-link-color: #c3c9d6;
+    --breadcrumbs-fg: #98a0b3;
+    --breadcrumbs-link-fg: #a5b4fc;
+    --breadcrumbs-bg: #151824;
+    --link-fg: #a5b4fc;
+    --link-hover-color: #c7d2fe;
+    --link-selected-fg: #a5b4fc;
+    --hairline-color: #262b3a;
+    --border-color: #343b4d;
+    --error-fg: #f97066;
+    --darkened-bg: #1b1f2d;
+    --selected-bg: #1e2440;
+    --selected-row: #232a4d;
+    --button-fg: #ffffff;
+    --button-bg: #6366f1;
+    --button-hover-bg: #4f46e5;
+    --default-button-bg: #4f46e5;
+    --default-button-hover-bg: #4338ca;
+    --close-button-bg: #343b4d;
+    --close-button-hover-bg: #4b5468;
+    --delete-button-bg: #d92d20;
+    --delete-button-hover-bg: #b42318;
+    --object-tools-fg: #ffffff;
+    --object-tools-bg: #6366f1;
+    --object-tools-hover-bg: #4f46e5;
+    --message-debug-bg: #1f2431;
+    --message-info-bg: #1c2740;
+    --message-success-bg: #14301f;
+    --message-warning-bg: #33280f;
+    --message-error-bg: #3a1a1a;
+  }
+}
+
+/* ==========================================================================
+   2. پایه و تایپوگرافی
+   ========================================================================== */
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family:
+    "Vazirmatn",
+    "Segoe UI",
+    Tahoma,
+    "Iranian Sans",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--t-text);
+  background-color: var(--t-bg);
+  background-image:
+    radial-gradient(
+      900px 420px at 100% -10%,
+      rgba(99, 102, 241, 0.1),
+      transparent 60%
+    ),
+    radial-gradient(
+      760px 380px at 0% 0%,
+      rgba(139, 92, 246, 0.08),
+      transparent 55%
+    );
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a:link,
+a:visited {
+  color: var(--link-fg);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--link-hover-color);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--t-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--t-text);
+}
+
+h1 {
+  font-size: 1.5rem;
+  line-height: 1.5;
+}
+
+code,
+pre,
+.mono {
+  font-family:
+    "JetBrains Mono", "Cascadia Code", Consolas, "SFMono-Regular", Menlo,
+    monospace;
+  font-size: 0.92em;
+}
+
+/* نوار اسکرول مدرن */
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c3c9d6;
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a6aec1;
+  background-clip: content-box;
+}
+
+::selection {
+  background: var(--t-primary-soft);
+}
+
+/* ==========================================================================
+   3. هدر و برندینگ
+   ========================================================================== */
+
+#header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: auto;
+  height: auto;
+  padding: 12px 24px;
+  background: var(--t-surface);
+  border-bottom: 1px solid var(--t-border);
+  box-shadow: var(--t-shadow-xs);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+#branding {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+#site-name a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--t-text) !important;
+  text-decoration: none;
+}
+
+#site-name a:hover {
+  color: var(--t-primary) !important;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: #fff;
+  background: linear-gradient(
+    135deg,
+    var(--t-primary) 0%,
+    var(--t-primary-2) 60%,
+    #a855f7 100%
+  );
+  box-shadow: 0 6px 16px -6px rgba(99, 102, 241, 0.65);
+}
+
+.brand-mark svg {
+  width: 21px;
+  height: 21px;
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.brand-title {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--t-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brand-subtitle {
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--t-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ابزارهای کاربر */
+#user-tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  float: none;
+  margin: 0;
+  padding: 0;
+  text-align: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--t-text-soft);
+}
+
+#user-tools > a,
+#user-tools #logout-form button {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: var(--t-radius-sm);
+  background: transparent;
+  color: var(--t-text-soft) !important;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+#user-tools > a:hover,
+#user-tools #logout-form button:hover,
+#user-tools > a:focus,
+#user-tools #logout-form button:focus {
+  background: var(--t-primary-soft);
+  color: var(--t-primary) !important;
+  text-decoration: none;
+}
+
+#user-tools strong {
+  color: var(--t-text);
+  font-weight: 700;
+}
+
+#logout-form {
+  display: inline-flex;
+  margin: 0;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin: 0 0 0 4px;
+  border: 1px solid var(--t-border);
+  border-radius: 10px;
+  background: var(--t-surface-2);
+  color: var(--t-text-soft);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--t-primary-soft);
+  border-color: var(--t-primary);
+  transform: translateY(-1px);
+}
+
+.theme-toggle svg {
+  height: 1.05rem;
+  width: 1.05rem;
+  fill: currentColor;
+  color: currentColor;
+}
+
+/* ==========================================================================
+   4. مسیر راهنما (breadcrumbs)
+   ========================================================================== */
+
+nav[aria-label="Breadcrumbs"] {
+  padding: 14px 24px 0;
+  background: transparent;
+  border: 0;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 4px;
+  padding: 0;
+  font-size: 0.82rem;
+  color: var(--t-muted);
+}
+
+.breadcrumbs li {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+}
+
+.breadcrumbs li + li::before {
+  content: "/";
+  margin: 0 8px;
+  color: var(--t-border-strong);
+}
+
+.breadcrumbs li a {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--t-surface);
+  border: 1px solid var(--t-border);
+  color: var(--t-text-soft) !important;
+  font-weight: 500;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.breadcrumbs li a:hover {
+  border-color: var(--t-primary);
+  color: var(--t-primary) !important;
+  background: var(--t-primary-soft);
+}
+
+.breadcrumbs li[aria-current="page"] {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--t-primary-soft);
+  color: var(--t-primary);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   5. نوار کناری (sidebar)
+   ========================================================================== */
+
+#nav-sidebar {
+  flex: 0 0 272px;
+  width: 272px;
+  padding: 16px 14px 28px;
+  background: var(--t-surface);
+  border-inline-end: 1px solid var(--t-border);
+  border-top: 0;
+  transition: box-shadow 0.2s ease;
+}
+
+.main.shifted > #nav-sidebar {
+  box-shadow: var(--t-shadow-md);
+}
+
+#nav-filter {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 14px;
+  padding: 9px 12px;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius-sm);
+  background: var(--t-surface-2);
+  color: var(--t-text);
+  font-family: inherit;
+  font-size: 0.82rem;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+#nav-filter:focus {
+  border-color: var(--t-primary);
+  background: var(--t-surface);
+  box-shadow: 0 0 0 3px var(--t-primary-ring);
+  outline: none;
+}
+
+#nav-sidebar .module {
+  margin-bottom: 18px;
+}
+
+#nav-sidebar .module caption {
+  padding: 0 10px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--t-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#nav-sidebar .module caption a.section {
+  color: var(--t-muted);
+}
+
+#nav-sidebar .module caption a.section:hover {
+  color: var(--t-primary);
+}
+
+#nav-sidebar .module table {
+  border-collapse: separate;
+  border-spacing: 0 2px;
+}
+
+#nav-sidebar .module th {
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+#nav-sidebar .module th a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text-soft);
+  font-size: 0.86rem;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+#nav-sidebar .module th a:hover {
+  background: var(--t-primary-soft);
+  color: var(--t-primary);
+}
+
+#nav-sidebar .module td {
+  padding: 0;
+  white-space: nowrap;
+  border: 0;
+}
+
+#nav-sidebar .current-app .section:link,
+#nav-sidebar .current-app .section:visited {
+  color: var(--t-primary);
+  font-weight: 700;
+}
+
+#nav-sidebar .current-model {
+  background: transparent;
+}
+
+#nav-sidebar .current-model th a {
+  background: linear-gradient(
+    135deg,
+    var(--t-primary) 0%,
+    var(--t-primary-2) 100%
+  );
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 6px 14px -6px rgba(99, 102, 241, 0.7);
+}
+
+#nav-sidebar .current-model th a:hover {
+  background: linear-gradient(
+    135deg,
+    var(--t-primary) 0%,
+    var(--t-primary-2) 100%
+  );
+  color: #fff;
+}
+
+/* آیکون اپلیکیشن‌ها در نوار کناری */
+#nav-sidebar .module th a::before,
+#content-main .module caption .section::before {
+  content: "";
+  display: block;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  background-color: currentColor;
+  opacity: 0.55;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+#nav-sidebar .app-documents th a::before,
+#content-main .app-documents caption .section::before {
+  -webkit-mask-image: var(--t-icon-docs);
+  mask-image: var(--t-icon-docs);
+}
+
+#nav-sidebar .app-auth th a::before,
+#content-main .app-auth caption .section::before {
+  -webkit-mask-image: var(--t-icon-users);
+  mask-image: var(--t-icon-users);
+}
+
+#nav-sidebar .app-contenttypes th a::before,
+#content-main .app-contenttypes caption .section::before {
+  -webkit-mask-image: var(--t-icon-db);
+  mask-image: var(--t-icon-db);
+}
+
+#nav-sidebar .app-admin th a::before,
+#content-main .app-admin caption .section::before {
+  -webkit-mask-image: var(--t-icon-cog);
+  mask-image: var(--t-icon-cog);
+}
+
+#nav-sidebar .current-model th a::before {
+  opacity: 1;
+  background-color: #fff;
+}
+
+/* دکمه‌ی باز/بسته کردن نوار کناری */
+.toggle-nav-sidebar {
+  border-inline-end: 1px solid var(--t-border);
+  background-color: var(--t-surface);
+  color: var(--t-muted);
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.toggle-nav-sidebar:hover,
+.toggle-nav-sidebar:focus {
+  background-color: var(--t-primary-soft);
+  color: var(--t-primary);
+}
+
+.toggle-nav-sidebar::before {
+  font-size: 1.1rem;
+}
+
+/* ==========================================================================
+   6. کارت‌ها و عنوان‌ها
+   ========================================================================== */
+
+#content {
+  padding: 20px 24px 48px;
+  max-width: 1400px;
+}
+
+.main.shifted > #nav-sidebar + .content {
+  max-width: none;
+}
+
+.titles-and-tools {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.titles h1 {
+  margin: 0;
+  font-size: 1.45rem;
+  line-height: 1.45;
+  color: var(--t-text);
+}
+
+.titles h2 {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--t-muted);
+}
+
+.module {
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius);
+  background: var(--t-surface);
+  box-shadow: var(--t-shadow-sm);
+  overflow: hidden;
+  margin-bottom: 22px;
+}
+
+.module caption,
+.module h2 {
+  padding: 14px 18px;
+  margin: 0;
+  border-bottom: 1px solid var(--t-border);
+  background: var(--t-surface-2);
+  color: var(--t-text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.module table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.module table thead th {
+  background: var(--t-surface-2);
+}
+
+.module table tbody tr:last-child td,
+.module table tbody tr:last-child th {
+  border-bottom: 0;
+}
+
+/* ==========================================================================
+   7. داشبورد: باکس‌ها زیر هم و تمام‌عرض
+   ========================================================================== */
+
+body.dashboard #content {
+  display: block;
+  width: auto;
+  max-width: none;
+  margin: 0;
+}
+
+body.dashboard #content-main {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  float: none;
+  width: 100%;
+  margin: 0;
+}
+
+body.dashboard #content-main .module {
+  width: 100%;
+  margin: 0;
+}
+
+body.dashboard #content-main .module caption {
+  font-size: 0.92rem;
+  text-align: start;
+}
+
+body.dashboard #content-main .module caption a.section {
+  color: var(--t-text);
+}
+
+body.dashboard #content-main .module caption a.section:hover {
+  color: var(--t-primary);
+}
+
+/* آیکون کنار عنوان هر اپ (ماسک‌ها در بخش ۵ تعریف شده) */
+#content-main .module caption .section::before {
+  content: "";
+  display: inline-block;
+  vertical-align: -4px;
+  margin-inline-end: 8px;
+  width: 18px;
+  height: 18px;
+  background-color: currentColor;
+  opacity: 0.55;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+/* ردیف مدل: اسم سمت راست، دکمه‌ها سمت چپ */
+body.dashboard #content-main .module table {
+  width: 100%;
+  table-layout: auto;
+}
+
+body.dashboard #content-main .module table th {
+  width: auto;
+}
+
+body.dashboard #content-main .module table td {
+  width: 1%;
+  white-space: nowrap;
+  text-align: end;
+}
+
+body.dashboard #content-main .module table td a {
+  display: inline-block;
+  padding: 4px 10px;
+  margin-inline-start: 4px;
+  border: 1px solid var(--t-border);
+  border-radius: 999px;
+  background: var(--t-surface-2);
+  color: var(--t-text-soft);
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+body.dashboard #content-main .module table td a:hover {
+  border-color: var(--t-primary);
+  background: var(--t-primary-soft);
+  color: var(--t-primary);
+}
+
+/* «فعالیت‌های اخیر» زیر باکس‌ها، تمام‌عرض */
+body.dashboard #content-related {
+  float: none;
+  position: static;
+  width: 100%;
+  margin: 20px 0 0;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius);
+  background: var(--t-surface);
+  box-shadow: var(--t-shadow-sm);
+  overflow: hidden;
+}
+
+#content-related .module {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+#content-related .actionlist {
+  padding: 0 16px 16px;
+  margin: 0;
+}
+
+ul.actionlist li {
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--t-border);
+  font-size: 0.85rem;
+}
+
+ul.actionlist li:last-child {
+  border-bottom: 0;
+}
+
+ul.actionlist .mini {
+  color: var(--t-muted);
+}
+
+/* ==========================================================================
+   8. جدول‌ها
+   ========================================================================== */
+
+#changelist table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--t-border);
+  background: var(--t-surface-2);
+  color: var(--t-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+#changelist table thead th a,
+#changelist table thead th a:visited {
+  color: inherit;
+}
+
+#changelist table thead th a:hover {
+  color: var(--t-primary);
+}
+
+#changelist table tbody td,
+#changelist table tbody th {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--t-border);
+  vertical-align: middle;
+  font-size: 0.88rem;
+}
+
+#changelist table tbody tr:hover {
+  background: var(--t-primary-soft);
+}
+
+#changelist table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+#changelist .results {
+  overflow-x: auto;
+}
+
+/* ستون عملیات */
+#changelist table td.action-checkbox,
+#changelist table th.action-checkbox {
+  width: 32px;
+  padding-inline-end: 0;
+}
+
+#changelist .action-select a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--t-surface-2);
+  border: 1px solid var(--t-border);
+  color: var(--t-muted);
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+#changelist .action-select a:hover {
+  border-color: var(--t-primary);
+  background: var(--t-primary-soft);
+  color: var(--t-primary);
+}
+
+/* ==========================================================================
+   9. فرم‌ها
+   ========================================================================== */
+
+fieldset {
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius);
+  background: var(--t-surface);
+  box-shadow: var(--t-shadow-sm);
+  margin: 0 0 18px;
+  overflow: hidden;
+}
+
+fieldset > legend,
+.module legend,
+.form-row legend,
+fieldset .fieldset-heading,
+fieldset .inline-heading {
+  padding: 12px 18px;
+  margin: 0;
+  border-bottom: 1px solid var(--t-border);
+  background: var(--t-surface-2);
+  color: var(--t-text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  width: auto;
+  float: none;
+}
+
+.aligned fieldset > div {
+  padding: 10px 18px;
+}
+
+.form-row {
+  padding: 6px 0;
+}
+
+.form-row label,
+.aligned label {
+  font-weight: 600;
+  color: var(--t-text-soft);
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="url"],
+input[type="number"],
+input[type="tel"],
+input[type="search"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="time"],
+input[type="week"],
+select,
+textarea,
+.vTextField {
+  padding: 9px 12px;
+  border: 1px solid var(--t-border-strong);
+  border-radius: var(--t-radius-sm);
+  background: var(--t-surface);
+  color: var(--t-text);
+  font-family: inherit;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  box-shadow: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+select {
+  min-width: 200px;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+input[type="search"]:focus,
+input[type="date"]:focus,
+input[type="datetime-local"]:focus,
+input[type="month"]:focus,
+input[type="time"]:focus,
+input[type="week"]:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--t-primary);
+  box-shadow: 0 0 0 3px var(--t-primary-ring);
+  outline: none;
+}
+
+textarea {
+  min-height: 120px;
+  line-height: 1.9;
+  resize: vertical;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--t-muted);
+  opacity: 1;
+}
+
+/* چک‌باکس و رادیو */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--t-primary);
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}
+
+/* راهنما و متن کمکی */
+.help,
+p.help,
+div.help {
+  margin: 6px 0 0;
+  color: var(--t-muted);
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+.help p {
+  margin: 0 0 4px;
+}
+
+/* مقدار فقط-خواندنی */
+.readonly {
+  padding: 9px 12px;
+  border: 1px dashed var(--t-border-strong);
+  border-radius: var(--t-radius-sm);
+  background: var(--t-surface-2);
+  color: var(--t-text-soft);
+}
+
+.inline-related {
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius);
+  overflow: hidden;
+}
+
+.inline-related fieldset {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* ==========================================================================
+   10. دکمه‌ها و ابزارهای شیء
+   ========================================================================== */
+
+input[type="submit"],
+input[type="button"],
+button,
+.submit-row input,
+a.button,
+.object-tools a,
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border: 1px solid transparent;
+  border-radius: var(--t-radius-sm);
+  background: linear-gradient(
+    135deg,
+    var(--t-primary) 0%,
+    var(--t-primary-2) 100%
+  );
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.8;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 6px 16px -8px rgba(79, 70, 229, 0.8);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
+}
+
+input[type="submit"]:hover,
+input[type="button"]:hover,
+button:hover,
+.submit-row input:hover,
+a.button:hover,
+.object-tools a:hover {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px -8px rgba(79, 70, 229, 0.85);
+  color: #fff;
+}
+
+input[type="submit"]:active,
+button:active,
+.submit-row input:active,
+a.button:active {
+  transform: translateY(0);
+}
+
+.submit-row {
+  padding: 16px 0 0;
+  background: transparent;
+  border: 0;
+  text-align: start;
+  overflow: hidden;
+}
+
+.submit-row .deletelink {
+  float: none;
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 18px;
+  border-radius: var(--t-radius-sm);
+  background: rgba(217, 45, 32, 0.1);
+  color: var(--delete-button-bg) !important;
+  font-weight: 600;
+  box-shadow: none;
+  transition: background 0.15s ease;
+}
+
+.submit-row .deletelink:hover {
+  background: var(--delete-button-bg);
+  color: #fff !important;
+  filter: none;
+  transform: none;
+  box-shadow: 0 6px 16px -8px rgba(217, 45, 32, 0.8);
+}
+
+/* ابزارهای بالای صفحه (افزودن / نمایش سایت) */
+.object-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.object-tools li {
+  display: inline-flex;
+  margin: 0;
+}
+
+.object-tools li + li {
+  margin: 0;
+}
+
+.object-tools a {
+  float: none !important;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: linear-gradient(
+    135deg,
+    var(--t-primary) 0%,
+    var(--t-primary-2) 100%
+  );
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  box-shadow: 0 8px 18px -8px rgba(79, 70, 229, 0.8);
+}
+
+.object-tools a.addlink,
+.object-tools a.viewsitelink {
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 13px auto;
+  padding-inline-end: 30px;
+}
+
+.object-tools a.deletelink {
+  background: rgba(217, 45, 32, 0.1);
+  color: var(--delete-button-bg) !important;
+  box-shadow: none;
+}
+
+.object-tools a.deletelink:hover {
+  background: var(--delete-button-bg);
+  color: #fff !important;
+}
+
+/* نوار اقدام گروهی */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid var(--t-border);
+  background: var(--t-surface-2);
+  color: var(--t-text-soft);
+  font-size: 0.82rem;
+}
+
+.actions select {
+  min-width: 180px;
+  padding: 7px 10px;
+  font-size: 0.82rem;
+}
+
+/* دکمه‌های ثانویه */
+.button.default,
+input.default {
+  background: linear-gradient(
+    135deg,
+    var(--t-primary-strong) 0%,
+    var(--t-primary) 100%
+  );
+}
+
+.button.closelink,
+a.closelink,
+a.deletelink {
+  background: var(--t-surface-2);
+  color: var(--t-text-soft) !important;
+  border-color: var(--t-border);
+  box-shadow: none;
+}
+
+/* ==========================================================================
+   11. پیام‌ها و خطاها
+   ========================================================================== */
+
+.messagelist {
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
+}
+
+.messagelist li {
+  margin: 0 0 8px;
+  padding: 12px 16px;
+  border: 1px solid var(--t-border);
+  border-inline-start: 4px solid var(--t-primary);
+  border-radius: var(--t-radius-sm);
+  background: var(--t-surface);
+  box-shadow: var(--t-shadow-sm);
+  color: var(--t-text);
+  font-size: 0.86rem;
+}
+
+.messagelist li.success {
+  border-inline-start-color: #12b76a;
+}
+
+.messagelist li.warning {
+  border-inline-start-color: #f79009;
+}
+
+.messagelist li.error {
+  border-inline-start-color: var(--delete-button-bg);
+}
+
+.messagelist li.info {
+  border-inline-start-color: var(--t-primary);
+}
+
+.errornote {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border: 1px solid rgba(217, 45, 32, 0.25);
+  border-inline-start: 4px solid var(--delete-button-bg);
+  border-radius: var(--t-radius-sm);
+  background: var(--message-error-bg);
+  color: var(--error-fg);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.errorlist {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--error-fg);
+  font-size: 0.78rem;
+}
+
+/* ==========================================================================
+   12. جست‌وجو، فیلتر و صفحه‌بندی
+   ========================================================================== */
+
+#toolbar {
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius);
+  background: var(--t-surface);
+  box-shadow: var(--t-shadow-sm);
+  color: var(--t-muted);
+}
+
+#changelist-search {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+#changelist-search > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#changelist-search img {
+  vertical-align: middle;
+  margin: 0;
+  opacity: 0.5;
+}
+
+#changelist-search #searchbar {
+  flex: 1 1 240px;
+  min-width: 180px;
+  height: auto;
+  padding: 9px 12px;
+  font-size: 0.85rem;
+  border: 1px solid var(--t-border-strong);
+  border-radius: var(--t-radius-sm);
+  background: var(--t-surface);
+  color: var(--t-text);
+}
+
+#changelist-search #searchbar:focus {
+  border-color: var(--t-primary);
+  box-shadow: 0 0 0 3px var(--t-primary-ring);
+  outline: none;
+}
+
+#changelist-search input[type="submit"] {
+  padding: 9px 18px;
+  border: 0;
+  border-radius: var(--t-radius-sm);
+  background: linear-gradient(
+    135deg,
+    var(--t-primary) 0%,
+    var(--t-primary-2) 100%
+  );
+  color: #fff;
+  font-size: 0.84rem;
+  font-weight: 600;
+  box-shadow: 0 6px 16px -8px rgba(79, 70, 229, 0.8);
+}
+
+#changelist-search input[type="submit"]:hover {
+  filter: brightness(1.07);
+}
+
+#changelist-search br.clear {
+  display: none;
+}
+
+#changelist-search .help {
+  width: 100%;
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+}
+
+#changelist-search .small.quiet {
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+  color: var(--t-muted);
+}
+
+/* فیلترهای کناری */
+#changelist-filter {
+  padding: 16px;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius);
+  background: var(--t-surface);
+  box-shadow: var(--t-shadow-sm);
+  margin-bottom: 18px;
+}
+
+#changelist-filter h2 {
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--t-muted);
+}
+
+#changelist-filter h3 {
+  margin: 14px 0 6px;
+  padding: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+#changelist-filter h3 a {
+  color: var(--t-text-soft);
+}
+
+#changelist-filter ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#changelist-filter li {
+  margin: 0 0 4px;
+}
+
+#changelist-filter li a,
+#changelist-filter li span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: var(--t-text-soft);
+  font-size: 0.84rem;
+}
+
+#changelist-filter li a:hover {
+  background: var(--t-primary-soft);
+  color: var(--t-primary);
+}
+
+#changelist-filter li.selected a {
+  background: var(--t-primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* صفحه‌بندی */
+.paginator {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 16px 18px;
+  border-top: 1px solid var(--t-border);
+  background: var(--t-surface-2);
+  color: var(--t-muted);
+  font-size: 0.82rem;
+}
+
+.paginator a,
+.paginator span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 8px;
+  background: var(--t-surface);
+  border: 1px solid var(--t-border);
+  color: var(--t-text-soft) !important;
+  font-weight: 600;
+}
+
+.paginator a:hover {
+  border-color: var(--t-primary);
+  color: var(--t-primary) !important;
+  background: var(--t-primary-soft);
+}
+
+.paginator a[aria-current="page"] {
+  background: linear-gradient(
+    135deg,
+    var(--t-primary) 0%,
+    var(--t-primary-2) 100%
+  );
+  border-color: transparent;
+  color: #fff !important;
+  box-shadow: 0 6px 14px -6px rgba(79, 70, 229, 0.8);
+}
+
+.paginator .end {
+  border: 0;
+  background: transparent;
+}
+
+/* ==========================================================================
+   13. صفحه‌ی ورود
+   ========================================================================== */
+
+body.login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: var(--t-bg);
+  background-image:
+    radial-gradient(
+      900px 500px at 90% -10%,
+      rgba(99, 102, 241, 0.16),
+      transparent 60%
+    ),
+    radial-gradient(
+      700px 420px at 5% 100%,
+      rgba(139, 92, 246, 0.14),
+      transparent 60%
+    );
+  background-attachment: fixed;
+}
+
+body.login #container {
+  display: block;
+  width: auto;
+  min-width: 0;
+  max-width: 1040px;
+  height: auto;
+  margin: 32px auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--t-radius-lg);
+  background: transparent;
+  overflow: visible;
+  box-shadow: var(--t-shadow-lg);
+}
+
+body.login #header {
+  position: static;
+  height: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  justify-content: flex-end;
+  position: absolute;
+  top: 22px;
+  inset-inline-end: 22px;
+  z-index: 5;
+}
+
+body.login #branding {
+  display: flex;
+  align-items: center;
+}
+
+body.login #site-name {
+  display: none;
+}
+
+body.login #content {
+  padding: 0;
+}
+
+.login-shell {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: stretch;
+  min-height: 520px;
+  border-radius: var(--t-radius-lg);
+  overflow: hidden;
+  background: var(--t-surface);
+}
+
+/* ستون برند */
+.login-brand {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 48px 44px;
+  color: #fff;
+  background:
+    radial-gradient(
+      520px 320px at 85% 10%,
+      rgba(255, 255, 255, 0.22),
+      transparent 60%
+    ),
+    linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #a855f7 100%);
+  overflow: hidden;
+}
+
+.login-brand::after {
+  content: "";
+  position: absolute;
+  inset-block-end: -120px;
+  inset-inline-start: -80px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.login-brand-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 420px;
+}
+
+.brand-mark-lg {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  box-shadow: none;
+  margin-bottom: 22px;
+}
+
+.brand-mark-lg svg {
+  width: 28px;
+  height: 28px;
+}
+
+.login-brand-title {
+  margin: 0 0 12px;
+  color: #fff;
+  font-size: 1.6rem;
+  line-height: 1.5;
+}
+
+.login-brand-text {
+  margin: 0 0 24px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.92rem;
+  line-height: 2;
+}
+
+.login-features {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.login-features li {
+  position: relative;
+  margin-bottom: 10px;
+  padding-inline-start: 30px;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.86rem;
+}
+
+.login-features li::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.48em;
+  width: 16px;
+  height: 16px;
+  background-color: rgba(255, 255, 255, 0.95);
+  -webkit-mask: var(--t-icon-check) no-repeat center / contain;
+  mask: var(--t-icon-check) no-repeat center / contain;
+}
+
+/* ستون فرم */
+.login-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 44px;
+  background: var(--t-surface);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 360px;
+}
+
+.login-card-head {
+  margin-bottom: 26px;
+}
+
+.login-card-head h1 {
+  margin: 0 0 6px;
+  font-size: 1.4rem;
+}
+
+.login-card-head p {
+  margin: 0;
+  color: var(--t-muted);
+  font-size: 0.86rem;
+}
+
+.login .form-row {
+  padding: 0 0 16px;
+}
+
+body.login .form-row {
+  padding: 0 0 16px;
+}
+
+body.login .form-row label {
+  display: block;
+  margin-bottom: 6px;
+  line-height: 1.6;
+  font-weight: 600;
+  color: var(--t-text-soft);
+}
+
+body.login .form-row #id_username,
+body.login .form-row #id_password {
+  width: 100%;
+  padding: 11px 14px;
+  box-sizing: border-box;
+}
+
+body.login .submit-row {
+  padding: 8px 0 0;
+  text-align: center;
+}
+
+body.login .submit-row input {
+  width: 100%;
+  padding: 12px 18px;
+  font-size: 0.92rem;
+}
+
+body.login .password-reset-link {
+  margin-top: 4px;
+  text-align: center;
+  font-size: 0.82rem;
+}
+
+body.login .password-reset-link a {
+  color: var(--t-muted);
+}
+
+body.login .password-reset-link a:hover {
+  color: var(--t-primary);
+}
+
+/* ==========================================================================
+   14. واکنش‌گرایی
+   ========================================================================== */
+
+@media (max-width: 1100px) {
+  .login-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .login-brand {
+    padding: 36px 32px;
+  }
+
+  .login-features {
+    display: none;
+  }
+
+  .login-panel {
+    padding: 36px 32px;
+  }
+}
+
+@media (max-width: 900px) {
+  #header {
+    padding: 10px 16px;
+  }
+
+  .brand-subtitle {
+    display: none;
+  }
+
+  nav[aria-label="Breadcrumbs"] {
+    padding: 12px 16px 0;
+  }
+
+  #content {
+    padding: 16px 16px 40px;
+  }
+
+  .dashboard #content-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .titles-and-tools {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .object-tools {
+    justify-content: flex-start;
+  }
+
+  body.login #container {
+    margin: 16px;
+  }
+
+  .login-shell {
+    border-radius: var(--t-radius);
+  }
+}
+
+/* ==========================================================================
+   15. تاریخچه پیام‌ها (Inline QueryLog در ConversationAdmin)
+   ========================================================================== */
+/* ==========================================================================
+   15. صفحه‌های لیست (اسناد / تاریخچه پرسش‌ها)
+   ========================================================================== */
+
+/* کانتینر بیرونی شفاف؛ کارت‌ها توی خودشونن */
+#changelist.module {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+  width: 100%;
+}
+
+#changelist .changelist-form-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  width: 100%;
+}
+
+/* فرم لیست = یک کارت شامل اقدام‌ها، جدول و صفحه‌بندی */
+#changelist #changelist-form {
+  flex: 1 1 0;
+  min-width: 0;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius);
+  background: var(--t-surface);
+  box-shadow: var(--t-shadow-sm);
+  overflow: hidden;
+}
+
+#changelist #changelist-filter {
+  flex: 0 0 260px;
+  width: auto;
+  margin: 0;
+}
+
+#changelist .results {
+  overflow-x: auto;
+}
+
+#result_list {
+  width: 100%;
+}
+
+#result_list td,
+#result_list th {
+  overflow-wrap: anywhere;
+}
+
+/* ستون اصلی (لینک ویرایش) خواناتر */
+#result_list tbody th {
+  min-width: 220px;
+  font-weight: 600;
+}
+
+#result_list tbody th a {
+  color: var(--t-text);
+}
+
+#result_list tbody th a:hover {
+  color: var(--t-primary);
+}
+
+/* ستون‌های کوتاه (عدد و تاریخ) توی یک خط */
+#result_list td.field-created_at,
+#result_list td.field-updated_at,
+#result_list td.field-response_time_ms,
+#result_list td.field-chunk_total,
+#result_list td.field-model_name {
+  white-space: nowrap;
+  color: var(--t-text-soft);
+}
+
+/* ==========================================================================
+   16. فرم‌های افزودن / ویرایش
+   ========================================================================== */
+
+body.change-form #content-main {
+  max-width: 1000px;
+}
+
+/* برچسب بالای فیلد، فیلد تمام‌عرض */
+.aligned label {
+  float: none;
+  display: block;
+  width: auto;
+  padding: 0 0 6px;
+}
+
+.aligned .form-row > .flex-container:not(.form-multiline) {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.aligned label + p,
+.aligned label + div.readonly,
+.aligned .form-row .help,
+form .aligned div.help,
+.aligned .checkbox-row + div.help {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.aligned
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
+    [type="submit"]
+  ),
+.aligned textarea,
+.aligned select,
+.aligned .readonly {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.aligned .field-content textarea {
+  min-height: 260px;
+}
+
+.aligned .field-question textarea {
+  min-height: 140px;
+}
+
+/* پاسخ و منابع که فقط‌خواندنی‌اند: بلند و خوانا */
+.aligned .field-answer .readonly,
+.aligned .field-sources .readonly {
+  white-space: pre-wrap;
+  line-height: 1.9;
+}
+
+.aligned .field-sources .readonly {
+  max-height: 320px;
+  overflow: auto;
+  direction: ltr;
+  text-align: left;
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 0.8rem;
+}
+
+/* ==========================================================================
+   17. موبایل: لیست‌ها به شکل کارت
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  #changelist .changelist-form-container {
+    flex-direction: column;
+  }
+
+  #changelist #changelist-filter {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  #changelist .results {
+    overflow-x: visible;
+  }
+
+  #result_list,
+  #result_list tbody {
+    display: block;
+  }
+
+  #result_list thead {
+    display: none;
+  }
+
+  #result_list tbody {
+    padding: 10px;
+  }
+
+  #result_list tbody tr {
+    display: block;
+    margin-bottom: 12px;
+    border: 1px solid var(--t-border);
+    border-radius: var(--t-radius-sm);
+    background: var(--t-surface);
+    overflow: hidden;
+  }
+
+  #result_list tbody tr:hover {
+    background: var(--t-surface);
+  }
+
+  #result_list tbody td,
+  #result_list tbody th {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    width: auto;
+    min-width: 0;
+    padding: 10px 14px;
+    white-space: normal;
+    border-bottom: 1px solid var(--t-border);
+  }
+
+  #result_list tbody tr > :last-child {
+    border-bottom: 0;
+  }
+
+  #result_list [data-label]::before {
+    content: attr(data-label);
+    flex: 0 0 38%;
+    color: var(--t-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  #result_list td.action-checkbox {
+    justify-content: flex-start;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+
+  .submit-row input,
+  .submit-row a {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+
+#changelist .actions {
+  min-height: 64px;
+  padding: 14px 18px;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+#changelist .actions label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-weight: 600;
+}
+
+#changelist .actions select {
+  height: 40px;
+  min-width: 220px;
+  margin: 0;
+}
+
+#changelist .actions .button {
+  height: 40px;
+  padding: 0 22px;
+  margin: 0;
+}
+
+#changelist .actions .action-counter {
+  margin-inline-start: auto;
+  font-size: 0.82rem;
+  color: var(--t-muted);
+}
+
+/* ==========================================================================
+   Django Admin 6.1.3 — Sidebar & Toggle
+   ========================================================================== */
+
+:root {
+  --admin-header-height: 66px;
+  --admin-sidebar-width: 275px;
+  --admin-toggle-width: 28px;
+}
+
+/* ساختار اصلی صفحه */
+#main.main {
+  min-width: 0;
+  align-items: stretch;
+}
+
+/* --------------------------------------------------------------------------
+   Toggle button
+   -------------------------------------------------------------------------- */
+
+#toggle-nav-sidebar {
+  /* خنثی‌سازی استایل عمومی button در بخش 10 */
+  display: block !important;
+  flex: 0 0 var(--admin-toggle-width) !important;
+  width: var(--admin-toggle-width) !important;
+  min-width: var(--admin-toggle-width) !important;
+  max-width: var(--admin-toggle-width) !important;
+
+  height: calc(100vh - var(--admin-header-height)) !important;
+  min-height: calc(100vh - var(--admin-header-height)) !important;
+  max-height: calc(100vh - var(--admin-header-height)) !important;
+
+  position: sticky;
+  top: var(--admin-header-height);
+  align-self: flex-start;
+
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  border: 0 !important;
+  border-inline-end: 1px solid var(--t-border) !important;
+  border-radius: 0 !important;
+
+  background: var(--t-surface) !important;
+  background-image: none !important;
+  color: var(--t-muted) !important;
+
+  box-shadow: none !important;
+  transform: none !important;
+  filter: none !important;
+
+  cursor: pointer;
+  z-index: 20;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* حالت Hover */
+#toggle-nav-sidebar:hover {
+  background: var(--t-primary-soft) !important;
+  color: var(--t-primary) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* حالت Focus */
+#toggle-nav-sidebar:focus,
+#toggle-nav-sidebar:focus-visible {
+  background: var(--t-surface-2) !important;
+  color: var(--t-primary) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* آیکون دکمه */
+#toggle-nav-sidebar::before {
+  font-size: 1.1rem;
+  color: inherit;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar
+   -------------------------------------------------------------------------- */
+
+#nav-sidebar {
+  display: block;
+  flex: 0 0 var(--admin-sidebar-width);
+  width: var(--admin-sidebar-width);
+  min-width: var(--admin-sidebar-width);
+  max-width: var(--admin-sidebar-width);
+
+  height: calc(100vh - var(--admin-header-height));
+  min-height: calc(100vh - var(--admin-header-height));
+  max-height: calc(100vh - var(--admin-header-height));
+
+  position: sticky;
+  top: var(--admin-header-height);
+  align-self: flex-start;
+
+  box-sizing: border-box;
+  margin-top: 0;
+  padding: 16px 14px 28px;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  background: var(--t-surface);
+  border-inline-end: 1px solid var(--t-border);
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--t-border-strong) transparent;
+
+  transition: box-shadow 0.2s ease;
+}
+
+/* اسکرول سایدبار */
+#nav-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+#nav-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#nav-sidebar::-webkit-scrollbar-thumb {
+  background: var(--t-border-strong);
+  border-radius: 10px;
+}
+
+/* حالت باز */
+#main.shifted > #nav-sidebar {
+  visibility: visible;
+  box-shadow: var(--t-shadow-md);
+}
+
+/* جلوگیری از ایجاد فضای اضافی در محتوای اصلی */
+#main > #content-start,
+#main > .content {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+/* لپ‌تاپ و نمایشگرهای متوسط */
+@media screen and (max-width: 1200px) {
+  :root {
+    --admin-sidebar-width: 245px;
+    --admin-toggle-width: 26px;
+  }
+}
+
+/* تبلت و موبایل */
+@media screen and (max-width: 767px) {
+  :root {
+    --admin-sidebar-width: 235px;
+    --admin-toggle-width: 24px;
+  }
+
+  #main > #content-start,
+  #main > .content {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+/* نمایشگرهای خیلی کوچک */
+@media screen and (max-width: 400px) {
+  :root {
+    --admin-sidebar-width: 215px;
+    --admin-toggle-width: 22px;
+  }
+}
+
+/* ==========================================================================
+   Sidebar — Compact rows and horizontal alignment
+   ========================================================================== */
+
+/* جدول هر اپلیکیشن */
+#nav-sidebar .module table {
+  width: 100%;
+  table-layout: auto;
+  border-collapse: separate;
+  border-spacing: 0 3px;
+}
+
+/* عنوان و دکمه اضافه کردن در یک ردیف */
+#nav-sidebar .module tbody tr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+/* ستون عنوان */
+#nav-sidebar .module tbody th {
+  display: block;
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  padding: 0;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-align: start;
+}
+
+/* لینک عنوان */
+#nav-sidebar .module tbody th a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 7px 8px;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ستون عملیات */
+#nav-sidebar .module tbody td {
+  display: block;
+  flex: 0 0 auto;
+  width: auto;
+  padding: 0;
+  margin: 0;
+  white-space: nowrap;
+  text-align: end;
+}
+
+/* لینک اضافه کردن */
+#nav-sidebar .module tbody td a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 7px;
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+/* جلوگیری از بزرگ شدن غیرضروری عنوان اپ‌ها */
+#nav-sidebar .module caption {
+  padding: 0 8px 7px;
+  font-size: 0.68rem;
+}
+
+/* ==========================================================================
+   Recent Actions — Icon alignment for RTL
+   ========================================================================== */
+
+#recent-actions-module .actionlist {
+  padding: 0 12px 12px;
+  margin: 0;
+}
+
+#recent-actions-module .actionlist li {
+  position: relative;
+  box-sizing: border-box;
+  padding: 10px 34px 10px 8px;
+  margin: 0;
+  background-position: right 12px top 15px !important;
+  background-repeat: no-repeat !important;
+  background-size: 14px 14px !important;
+  border-bottom: 1px solid var(--t-border);
+  line-height: 1.8;
+  text-align: right;
+}
+
+/* لینک فعالیت */
+#recent-actions-module .actionlist li > a {
+  display: inline;
+  font-size: 0.83rem;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+/* نوع فعالیت: تاریخچه پرسش، Conversation و ... */
+#recent-actions-module .actionlist li .mini {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: 0.72rem;
+  line-height: 1.7;
+  color: var(--t-muted);
+}
+
+/* آخرین آیتم */
+#recent-actions-module .actionlist li:last-child {
+  border-bottom: 0;
+}
+
+/* عنوان‌های فعالیت‌های اخیر */
+#recent-actions-module h2,
+#recent-actions-module h3 {
+  text-align: right;
+}
+
+/* Sidebar — Add link icon alignment (RTL) */
+
+#nav-sidebar .module tbody tr {
+  align-items: center !important;
+}
+
+#nav-sidebar .module tbody td {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  align-self: center !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+#nav-sidebar .module tbody td a.addlink {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  direction: rtl !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+
+  padding: 5px 7px !important;
+  margin: 0 !important;
+
+  background-image: none !important;
+  white-space: nowrap !important;
+  font-size: 0.76rem !important;
+  line-height: 1.6 !important;
+}
+
+/* آیکون بعد از متن اضافه کردن */
+#nav-sidebar .module tbody td a.addlink::after {
+  content: "+" !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+  color: #22c55e;
+}
+
+/* حذف آیکون‌های قدیمی احتمالی */
+#nav-sidebar .module tbody td a.addlink::before {
+  content: none !important;
+}
+
+/* ==========================================================================
+   دکمه‌ی حذف: همیشه قرمز با متن سفید
+   ========================================================================== */
+
+.submit-row a.deletelink,
+.object-tools a.deletelink,
+a.deletelink:link,
+a.deletelink:visited {
+  background: var(--delete-button-bg) !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  color: #fff !important;
+  box-shadow: 0 6px 16px -8px rgba(217, 45, 32, 0.8) !important;
+}
+
+.submit-row a.deletelink:hover,
+.object-tools a.deletelink:hover,
+a.deletelink:hover {
+  background: var(--delete-button-hover-bg) !important;
+  color: #fff !important;
+  filter: none;
+}

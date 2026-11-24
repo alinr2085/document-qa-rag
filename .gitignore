@@ -1,0 +1,37 @@
+# --- محیط مجازی پایتون ---
+venv/
+.venv/
+env/
+
+# --- فایل‌های تولیدشده‌ی پایتون ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# --- اسرار (هرگز commit نشن) ---
+.env
+.env.*
+!.env.example
+
+# --- داده‌ی زمان اجرا (دیتابیس SQLite، فایل‌های آپلودی) ---
+data/
+db.sqlite3
+*.sqlite3
+media/
+
+# --- فایل‌های ساخته‌شده توسط collectstatic ---
+staticfiles/
+
+# --- ادیتور و سیستم‌عامل ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- خروجی تحویل و لاگ ---
+*.zip
+*.log
+django_admin_templates/
+
+docqa/

@@ -1,0 +1,40 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% comment %}
+  تم مدرن پنل مدیریت DocQA.
+  این فایل فقط لایه‌ی ظاهری است: هیچ مسیر، فرم یا دکمه‌ای تغییر نمی‌کند و
+  همه‌ی بلوک‌ها از قالب اصلی Django ارث می‌برند.
+{% endcomment %}
+
+{% block extrastyle %}{{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/admin-theme.css' %}">
+{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+<script src="{% static 'admin/js/admin-theme.js' %}" defer></script>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" crossorigin="anonymous">
+{% endblock %}
+
+{% block branding %}
+<div id="site-name">
+  <a href="{% url 'admin:index' %}">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <path d="M14 2v6h6"/>
+        <path d="M9 13h6"/>
+        <path d="M9 17h4"/>
+      </svg>
+    </span>
+    <span class="brand-copy">
+      <span class="brand-title">{{ site_header|default:_('Django administration') }}</span>
+      <span class="brand-subtitle">{% translate "پنل مدیریت اسناد و پرسش‌ها" %}</span>
+    </span>
+  </a>
+</div>
+{% if user.is_anonymous %}
+  {% include "admin/color_theme_toggle.html" %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,30 @@
+msgid ""
+msgstr ""
+"Language: fa\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Raw passwords are not stored, so there is no way to see the user’s password."
+msgstr "گذرواژه‌ها به‌صورت خام ذخیره نمی‌شوند، بنابراین امکان مشاهده‌ی گذرواژه‌ی کاربر وجود ندارد."
+
+msgid "Reset password"
+msgstr "بازنشانی گذرواژه"
+
+msgid "salt"
+msgstr "نمک (salt)"
+
+msgid "hash"
+msgstr "هش (hash)"
+
+msgid "Password-based authentication"
+msgstr "احراز هویت با گذرواژه"
+
+msgid "Whether the user will be able to authenticate using a password or not. If disabled, they may still be able to authenticate using other backends, such as Single Sign-On or LDAP."
+msgstr "مشخص می‌کند کاربر بتواند با گذرواژه وارد شود یا نه. اگر غیرفعال باشد، کاربر همچنان می‌تواند از روش‌های دیگر مانند ورود یکپارچه (SSO) یا LDAP وارد شود."
+
+msgid "Enabled"
+msgstr "فعال"
+
+msgid "Disabled"
+msgstr "غیرفعال"

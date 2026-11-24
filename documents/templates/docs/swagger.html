@@ -1,0 +1,142 @@
+{% extends "drf_spectacular/swagger_ui.html" %}
+{# Visual skin only (CSS). Same content as the default page; no text, schema or API behaviour changes. #}
+{% block head %}
+{{ block.super }}
+<style>
+  :root {
+    --brand: #6366f1;
+    --brand-2: #8b5cf6;
+    --brand-dark: #4338ca;
+    --ink: #111827;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --card: #ffffff;
+    --get: #0ea5e9;
+    --post: #10b981;
+    --put: #f59e0b;
+    --patch: #8b5cf6;
+    --delete: #ef4444;
+    --radius: 14px;
+    --shadow-sm: 0 1px 2px rgba(17,24,39,.06), 0 1px 3px rgba(17,24,39,.06);
+    --shadow-md: 0 8px 24px -8px rgba(79,70,229,.25), 0 2px 6px rgba(17,24,39,.06);
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background:
+      radial-gradient(900px 400px at 10% -10%, rgba(99,102,241,.14), transparent 60%),
+      radial-gradient(800px 400px at 100% 0%, rgba(139,92,246,.12), transparent 55%),
+      #f5f6fb;
+    background-attachment: fixed;
+  }
+  .swagger-ui .wrapper { max-width: 1120px; }
+
+  /* text font (code keeps its monospace font) */
+  .swagger-ui, .swagger-ui .info .title, .swagger-ui .opblock-tag, .swagger-ui .opblock-summary-description,
+  .swagger-ui .markdown p, .swagger-ui table thead tr th, .swagger-ui .tab li, .swagger-ui .btn,
+  .swagger-ui label, .swagger-ui .parameter__name, .swagger-ui .response-col_description,
+  .swagger-ui .opblock-description-wrapper p, .swagger-ui .opblock-section-header h4 {
+    font-family: Inter, "Segoe UI", system-ui, -apple-system, Tahoma, Arial, sans-serif;
+  }
+  .swagger-ui pre, .swagger-ui code, .swagger-ui .opblock-summary-path, .swagger-ui textarea {
+    font-family: "JetBrains Mono", "Cascadia Code", Consolas, "SFMono-Regular", Menlo, monospace;
+  }
+
+  /* header card */
+  .swagger-ui .info {
+    margin: 36px 0 26px; padding: 30px 32px; border-radius: 20px; position: relative; overflow: hidden;
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 55%, #a855f7 100%);
+    box-shadow: 0 20px 40px -18px rgba(79,70,229,.55);
+  }
+  .swagger-ui .info::after {
+    content: ""; position: absolute; width: 320px; height: 320px; right: -80px; top: -140px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,.28), transparent 65%); pointer-events: none;
+  }
+  .swagger-ui .info .title, .swagger-ui .info .title small, .swagger-ui .info p, .swagger-ui .info li,
+  .swagger-ui .info a, .swagger-ui .info h1, .swagger-ui .info h2, .swagger-ui .info h3 { color: #fff; }
+  .swagger-ui .info .title { font-weight: 800; letter-spacing: -.5px; }
+  .swagger-ui .info .title small { background: rgba(255,255,255,.22); border-radius: 999px; padding: 2px 10px; }
+  .swagger-ui .info .title small pre { color: #fff; }
+  .swagger-ui .info a:hover { text-decoration: underline; }
+  .swagger-ui .scheme-container { background: transparent; box-shadow: none; padding: 0 0 6px; }
+
+  /* tag sections as cards */
+  .swagger-ui .opblock-tag-section {
+    margin-bottom: 20px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 2px 18px 14px; box-shadow: var(--shadow-sm); transition: box-shadow .25s ease, transform .25s ease;
+    animation: rise .5s ease both;
+  }
+  .swagger-ui .opblock-tag-section:hover { box-shadow: var(--shadow-md); }
+  .swagger-ui .opblock-tag { border-bottom: 1px solid var(--line); color: var(--ink); font-size: 19px; font-weight: 700; padding: 16px 4px; transition: color .2s; }
+  .swagger-ui .opblock-tag:hover { background: transparent; color: var(--brand-dark); }
+  .swagger-ui .opblock-tag small { color: var(--muted); font-weight: 400; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* operations */
+  .swagger-ui .opblock {
+    border-radius: 12px; border-width: 1px; border-left-width: 5px; box-shadow: none; margin: 12px 0;
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .swagger-ui .opblock:hover { transform: translateY(-1px); box-shadow: 0 6px 18px -8px rgba(17,24,39,.25); }
+  .swagger-ui .opblock .opblock-summary { padding: 7px 12px; border-bottom: 0; }
+  .swagger-ui .opblock .opblock-summary-method {
+    border-radius: 999px; min-width: 78px; padding: 6px 12px; font-weight: 700; letter-spacing: .4px;
+    text-shadow: none; box-shadow: 0 2px 6px rgba(17,24,39,.18);
+  }
+  .swagger-ui .opblock .opblock-summary-path { font-weight: 600; color: var(--ink); font-size: 15px; }
+  .swagger-ui .opblock.opblock-get    { background: rgba(14,165,233,.07); border-color: var(--get); }
+  .swagger-ui .opblock.opblock-post   { background: rgba(16,185,129,.07); border-color: var(--post); }
+  .swagger-ui .opblock.opblock-put    { background: rgba(245,158,11,.08); border-color: var(--put); }
+  .swagger-ui .opblock.opblock-patch  { background: rgba(139,92,246,.07); border-color: var(--patch); }
+  .swagger-ui .opblock.opblock-delete { background: rgba(239,68,68,.07);  border-color: var(--delete); }
+  .swagger-ui .opblock.opblock-get .opblock-summary-method    { background: var(--get); }
+  .swagger-ui .opblock.opblock-post .opblock-summary-method   { background: var(--post); }
+  .swagger-ui .opblock.opblock-put .opblock-summary-method    { background: var(--put); }
+  .swagger-ui .opblock.opblock-patch .opblock-summary-method  { background: var(--patch); }
+  .swagger-ui .opblock.opblock-delete .opblock-summary-method { background: var(--delete); }
+  .swagger-ui .opblock .opblock-section-header { background: rgba(255,255,255,.7); box-shadow: none; border-bottom: 1px solid var(--line); }
+  .swagger-ui .opblock-body pre.microlight { border-radius: 12px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+
+  /* buttons */
+  .swagger-ui .btn { border-radius: 10px; box-shadow: none; transition: transform .15s ease, box-shadow .15s ease, background .2s; }
+  .swagger-ui .btn:hover { box-shadow: 0 4px 12px -4px rgba(17,24,39,.3); transform: translateY(-1px); }
+  .swagger-ui .btn.execute {
+    background: linear-gradient(135deg, var(--brand), var(--brand-2)); border: 0; color: #fff; padding: 10px 22px;
+  }
+  .swagger-ui .btn.execute:hover { filter: brightness(1.07); }
+  .swagger-ui .btn.try-out__btn { border: 1.5px solid var(--brand); color: var(--brand); background: transparent; }
+  .swagger-ui .btn.try-out__btn:hover { background: var(--brand); color: #fff; }
+  .swagger-ui .btn.cancel { border-radius: 10px; }
+  .swagger-ui .btn.authorize { border-color: var(--post); color: var(--post); }
+  .swagger-ui .btn.authorize svg { fill: var(--post); }
+
+  /* inputs */
+  .swagger-ui input[type=text], .swagger-ui input[type=password], .swagger-ui input[type=file],
+  .swagger-ui textarea, .swagger-ui select {
+    border-radius: 10px; border: 1px solid var(--line); transition: border-color .15s, box-shadow .15s;
+  }
+  .swagger-ui input[type=text]:focus, .swagger-ui textarea:focus, .swagger-ui select:focus {
+    outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(99,102,241,.2);
+  }
+  .swagger-ui textarea.body-param__text { background: #f9fafb; }
+
+  /* tables, responses, models */
+  .swagger-ui table tbody tr td { border-color: var(--line); }
+  .swagger-ui .responses-inner { border-radius: 12px; }
+  .swagger-ui .response-col_status { font-weight: 700; }
+  .swagger-ui section.models { border-radius: var(--radius); border-color: var(--line); background: var(--card); box-shadow: var(--shadow-sm); }
+  .swagger-ui section.models h4 { color: var(--ink); }
+  .swagger-ui .model-box { border-radius: 10px; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #c7c9d9; border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: #a5a8c0; background-clip: content-box; border: 2px solid transparent; }
+  ::selection { background: rgba(99,102,241,.25); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .swagger-ui .opblock-tag-section { animation: none; }
+    .swagger-ui .opblock, .swagger-ui .btn { transition: none; }
+  }
+</style>
+{% endblock head %}
