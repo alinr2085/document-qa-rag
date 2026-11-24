@@ -3,3 +3,6 @@
 *.mo binary
 static/** linguist-vendored
 templates/** linguist-vendored
+*.css linguist-detectable=false
+*.html linguist-detectable=false
+*.js linguist-detectable=false
